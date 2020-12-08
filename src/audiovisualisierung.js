@@ -79,6 +79,7 @@ function useMic() {
       console.log(err);
     });
 }
+useMic();
 
 function initBinCanvas() {
   //add new canvas
@@ -180,8 +181,6 @@ function drawBars(array) {
     var value = array[i];
     if (value >= threshold) {
       //draw bin
-      //ctx.fillRect(0 + i * space, c.height - value, 2 , c.height);
-      //ctx.fillRect(i * space, c.height, 2, -value);
       ctx.fillRect(
         0,
         radius,
@@ -196,8 +195,6 @@ function drawBars(array) {
     var value = array[i];
     if (value >= threshold) {
       //draw bin
-      //ctx.fillRect(0 + i * space, c.height - value, 2 , c.height);
-      //ctx.fillRect(i * space, c.height, 2, -value);
       ctx.rotate((-(180 / 128) * Math.PI) / 180);
       ctx.fillRect(
         0,
@@ -212,8 +209,6 @@ function drawBars(array) {
     var value = array[i];
     if (value >= threshold) {
       //draw bin
-      //ctx.fillRect(0 + i * space, c.height - value, 2 , c.height);
-      //ctx.fillRect(i * space, c.height, 2, -value);
       ctx.rotate(((180 / 128) * Math.PI) / 180);
       ctx.fillRect(
         0,
