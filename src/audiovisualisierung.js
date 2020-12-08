@@ -6,6 +6,8 @@
  * https://www.behance.net/gallery/49260123/Web-Audio-Visualization
  */
 
+"use strict";
+
 var rafID = null;
 var analyser = null;
 var c = null;
@@ -27,10 +29,15 @@ var context = new AudioContext();
 if (!window.requestAnimationFrame)
   window.requestAnimationFrame = window.webkitRequestAnimationFrame;
 
-$(function () {
-  "use strict";
+if (document.readyState === "interactive") {
   initBinCanvas();
-});
+} else {
+  document.addEventListener("readystatechange", () => {
+    if (document.readyState === "interactive") {
+      initBinCanvas();
+    }
+  });
+}
 
 function useMic() {
   "use strict";
@@ -54,9 +61,11 @@ function useMic() {
       rafID = window.requestAnimationFrame(updateVisualization);
 
       onWindowResize();
-      $("#freq, body").addClass("animateHue");
+      document.querySelectorAll("#freq, body").forEach((el) => {
+        el.classList.add("animateHue");
+      });
 
-      document.getElementById("useMicButton").style.display = "none";
+      document.querySelector("#useMicButton").style.display = "none";
     })
     .catch(function (err) {
       /* handle the error */
@@ -66,38 +75,6 @@ function useMic() {
       console.log("capturing microphone data failed!");
       console.log(err);
     });
-}
-
-// progress on transfers from the server to the client (downloads)
-function updateProgress(oEvent) {
-  if (oEvent.lengthComputable) {
-    $("button, input").prop("disabled", true);
-    var percentComplete = oEvent.loaded / oEvent.total;
-    console.log(
-      "Loading music file... " + Math.floor(percentComplete * 100) + "%"
-    );
-    $("#loading").html("Loading... " + Math.floor(percentComplete * 100) + "%");
-  } else {
-    // Unable to compute progress information since the total size is unknown
-    console.log("Unable to compute progress info.");
-  }
-}
-
-function transferComplete(evt) {
-  console.log("The transfer is complete.");
-  $("#loading").html("");
-  //$("button, input").prop("disabled",false);
-}
-
-function transferFailed(evt) {
-  console.log("An error occurred while transferring the file.");
-  $("#loading").html("Loading failed.");
-  $("button, input").prop("disabled", false);
-}
-
-function transferCanceled(evt) {
-  console.log("The transfer has been canceled by the user.");
-  $("#loading").html("Loading canceled.");
 }
 
 function initBinCanvas() {
@@ -133,36 +110,14 @@ function onWindowResize() {
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
 
-  var containerHeight = $("#song_info_wrapper").height();
-  var topVal = $(window).height() / 2 - containerHeight / 2;
-  $("#song_info_wrapper").css("top", topVal);
+  const container = document.querySelector("#song_info_wrapper");
+  var containerHeight = container.getBoundingClientRect().height;
+  var topVal = window.innerHeight / 2 - containerHeight / 2;
+  container.style.top = topVal;
   console.log(topVal);
-
-  if ($(window).width() <= 500) {
-    //TODO: not yet working
-    $("#title").css("font-size", "40px");
-  }
-}
-
-var audioBuffer;
-var sourceNode;
-function setupAudioNodes() {
-  // setup a analyser
-  analyser = context.createAnalyser();
-  // create a buffer source node
-  sourceNode = context.createBufferSource();
-  //connect source to analyser as link
-  sourceNode.connect(analyser);
-  // and connect source to destination
-  sourceNode.connect(context.destination);
-  //start updating
-  rafID = window.requestAnimationFrame(updateVisualization);
 }
 
 function reset() {
-  if (typeof sourceNode !== "undefined") {
-    sourceNode.stop(0);
-  }
   if (typeof microphone !== "undefined") {
     microphone = null;
   }
@@ -188,8 +143,6 @@ function drawBars(array) {
   ctx.clearRect(0, 0, c.width, c.height);
   //the max count of bins for the visualization
   var maxBinCount = array.length;
-  //space between bins
-  var space = 3;
 
   ctx.save();
 
@@ -200,21 +153,23 @@ function drawBars(array) {
   ctx.translate(window.innerWidth, window.innerHeight);
   ctx.fillStyle = "#fff";
 
+  const windowWidth = window.innerWidth;
   var bass = Math.floor(array[1]); //1Hz Frequenz
   var radius =
-    0.45 * $(window).width() <= 450
-      ? -(bass * 0.25 + 0.45 * $(window).width())
+    0.45 * windowWidth <= 450
+      ? -(bass * 0.25 + 0.45 * windowWidth)
       : -(bass * 0.25 + 450);
 
   var bar_length_factor = 1;
-  if ($(window).width() >= 785) {
+  if (windowWidth >= 785) {
     bar_length_factor = 1.0;
-  } else if ($(window).width() < 785) {
+  } else if (windowWidth < 785) {
     bar_length_factor = 1.5;
-  } else if ($(window).width() < 500) {
+  } else if (windowWidth < 500) {
     bar_length_factor = 20.0;
   }
-  console.log($(window).width());
+  // console.log(windowWidth);
+
   //go over each bin
   for (var i = 0; i < maxBinCount; i++) {
     var value = array[i];
@@ -225,7 +180,7 @@ function drawBars(array) {
       ctx.fillRect(
         0,
         radius,
-        $(window).width() <= 450 ? 2 : 3,
+        windowWidth <= 450 ? 2 : 3,
         -value / bar_length_factor
       );
       ctx.rotate(((180 / 128) * Math.PI) / 180);
@@ -242,7 +197,7 @@ function drawBars(array) {
       ctx.fillRect(
         0,
         radius,
-        $(window).width() <= 450 ? 2 : 3,
+        windowWidth <= 450 ? 2 : 3,
         -value / bar_length_factor
       );
     }
@@ -258,7 +213,7 @@ function drawBars(array) {
       ctx.fillRect(
         0,
         radius,
-        $(window).width() <= 450 ? 2 : 3,
+        windowWidth <= 450 ? 2 : 3,
         -value / bar_length_factor
       );
     }
