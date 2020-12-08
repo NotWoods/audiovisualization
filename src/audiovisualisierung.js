@@ -29,6 +29,8 @@ var context = new AudioContext();
 if (!window.requestAnimationFrame)
   window.requestAnimationFrame = window.webkitRequestAnimationFrame;
 
+let { innerWidth, innerHeight } = window;
+
 if (document.readyState === "interactive") {
   initBinCanvas();
 } else {
@@ -81,13 +83,13 @@ function initBinCanvas() {
   //add new canvas
   "use strict";
   c = document.getElementById("freq");
-  c.width = window.innerWidth;
-  c.height = window.innerHeight;
+  c.width = innerWidth;
+  c.height = innerHeight;
   //get context from canvas for drawing
   ctx = c.getContext("2d");
 
-  ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
+  ctx.canvas.width = innerWidth;
+  ctx.canvas.height = innerHeight;
 
   window.addEventListener("resize", onWindowResize, false);
 
@@ -96,7 +98,7 @@ function initBinCanvas() {
     0,
     c.height - 300,
     0,
-    window.innerHeight - 25
+    innerHeight - 25
   );
   gradient.addColorStop(1, "#00f"); //black
   gradient.addColorStop(0.75, "#f00"); //red
@@ -107,12 +109,14 @@ function initBinCanvas() {
 }
 
 function onWindowResize() {
-  ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
+  innerWidth = window.innerWidth;
+  innerHeight = window.innerHeight;
+  ctx.canvas.width = innerWidth;
+  ctx.canvas.height = innerHeight;
 
   const container = document.querySelector("#song_info_wrapper");
   var containerHeight = container.getBoundingClientRect().height;
-  var topVal = window.innerHeight / 2 - containerHeight / 2;
+  var topVal = innerHeight / 2 - containerHeight / 2;
   container.style.top = topVal;
   console.log(topVal);
 }
@@ -150,10 +154,10 @@ function drawBars(array) {
 
   //console.log(maxBinCount); //--> 1024
   ctx.scale(0.5, 0.5);
-  ctx.translate(window.innerWidth, window.innerHeight);
+  ctx.translate(innerWidth, innerHeight);
   ctx.fillStyle = "#fff";
 
-  const windowWidth = window.innerWidth;
+  const windowWidth = innerWidth;
   var bass = Math.floor(array[1]); //1Hz Frequenz
   var radius =
     0.45 * windowWidth <= 450
