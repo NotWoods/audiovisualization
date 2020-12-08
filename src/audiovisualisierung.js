@@ -29,7 +29,8 @@ var context = new AudioContext();
 if (!window.requestAnimationFrame)
   window.requestAnimationFrame = window.webkitRequestAnimationFrame;
 
-let { innerWidth, innerHeight } = window;
+let windowWidth = window.innerWidth;
+let windowHeight = window.innerHeight;
 
 if (document.readyState === "interactive") {
   initBinCanvas();
@@ -63,7 +64,7 @@ function useMic() {
       rafID = window.requestAnimationFrame(updateVisualization);
 
       onWindowResize();
-      document.querySelectorAll("#freq, body").forEach((el) => {
+      document.querySelectorAll("canvas").forEach((el) => {
         el.classList.add("animateHue");
       });
 
@@ -83,13 +84,13 @@ function initBinCanvas() {
   //add new canvas
   "use strict";
   c = document.getElementById("freq");
-  c.width = innerWidth;
-  c.height = innerHeight;
+  c.width = windowWidth;
+  c.height = windowHeight;
   //get context from canvas for drawing
   ctx = c.getContext("2d");
 
-  ctx.canvas.width = innerWidth;
-  ctx.canvas.height = innerHeight;
+  ctx.canvas.width = windowWidth;
+  ctx.canvas.height = windowHeight;
 
   window.addEventListener("resize", onWindowResize, false);
 
@@ -109,10 +110,10 @@ function initBinCanvas() {
 }
 
 function onWindowResize() {
-  innerWidth = window.innerWidth;
-  innerHeight = window.innerHeight;
-  ctx.canvas.width = innerWidth;
-  ctx.canvas.height = innerHeight;
+  windowWidth = window.innerWidth;
+  windowHeight = window.innerHeight;
+  ctx.canvas.width = windowWidth;
+  ctx.canvas.height = windowHeight;
 
   const container = document.querySelector("#song_info_wrapper");
   var containerHeight = container.getBoundingClientRect().height;
@@ -141,6 +142,7 @@ function updateVisualization() {
 }
 
 function drawBars(array) {
+  console.log('draw bars')
   //just show bins with a value over the treshold
   var threshold = 0;
   // clear the current state
@@ -154,10 +156,9 @@ function drawBars(array) {
 
   //console.log(maxBinCount); //--> 1024
   ctx.scale(0.5, 0.5);
-  ctx.translate(innerWidth, innerHeight);
+  ctx.translate(windowWidth, windowHeight);
   ctx.fillStyle = "#fff";
 
-  const windowWidth = innerWidth;
   var bass = Math.floor(array[1]); //1Hz Frequenz
   var radius =
     0.45 * windowWidth <= 450
